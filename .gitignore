@@ -1,2 +1,5 @@
 /target
 Cargo.lock
+.DS_store
+dft-plot.png
+signal-plot.png
