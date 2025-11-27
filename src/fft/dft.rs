@@ -18,6 +18,7 @@ impl FourierTransform {
 }
 
 pub trait Dft {
+    fn simple_dft(&mut self, input: &mut Vec<f32>) -> Vec<Complex32>;
     fn dft(&mut self);
     fn fft(&mut self);
 }
@@ -34,6 +35,21 @@ impl Window for FourierTransform {
 }
 
 impl Dft for FourierTransform {
+    fn simple_dft(&mut self, input: &mut Vec<f32>) -> Vec<Complex32> {
+        let signal = input.len();
+        let mut temp: Vec<Complex32> = vec![Complex32::default(); signal as usize];
+
+        (0..signal)
+            .flat_map(|frequency_bin| (0..signal).map(move |sample| (frequency_bin, sample)))
+            .for_each(|(frequency_bin, sample)| {
+                let angle: f32 = -TAU * frequency_bin as f32 * sample as f32 / signal as f32;
+                let complex: Complex32 = Complex32::new(angle.cos(), angle.sin());
+                temp[frequency_bin] += input[sample] * complex;
+            });
+
+        temp
+    }
+
     /// Simple DFT
     fn dft(&mut self) {
         let signal = self.signal.len() as i32;
@@ -48,28 +64,6 @@ impl Dft for FourierTransform {
                 let complex: Complex32 = Complex32::new(angle.cos(), angle.sin());
                 self.bins[frequency_bin] += self.signal[sample] * complex;
             });
-
-        // This is basically what happens in the iterator but as for loops, code kept for reference
-        // for frequency_bin in 0..signal {
-        //     let mut sum: Complex32 = Complex32::default();
-
-        //     for sample in 0..signal {
-        //         // if inverse.unwrap() {
-        //         //     let angle: f32 = TAU * a as f32 * b as f32 / size as f32;
-        //         // }
-        //         let angle: f32 = -TAU * frequency_bin as f32 * sample as f32 / signal as f32;
-        //         let complex: Complex32 = Complex32::new(angle.cos(), angle.sin());
-
-        //         sum += self.signal[sample as usize] * complex;
-
-        //         // if inverse.unwrap() {
-        //         //     sum.im /= size as f32;
-        //         //     sum.re /= size as f32;
-        //         // }
-        //         // println!("i: {a} j: {b} angle: {angle}");
-        //     }
-        //     self.bins.push(sum);
-        // }
     }
 
     /// Incomplete radix-2 FFT implementation
