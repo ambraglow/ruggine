@@ -3,7 +3,7 @@ use rand::Rng;
 use std::f32::consts::TAU;
 
 pub struct RandComplex<T> {
-    complex: Complex<T>,
+    complex: T,
     step: T,
 }
 
@@ -14,7 +14,7 @@ pub struct Sine {
 }
 
 impl RandComplex<f32> {
-    pub fn default(step: f32, opt_complex: Option<Complex<f32>>) -> Self {
+    pub fn default(step: f32, opt_complex: Option<f32>) -> Self {
         if let Some(complex) = opt_complex {
             RandComplex {
                 complex: complex,
@@ -22,7 +22,7 @@ impl RandComplex<f32> {
             }
         } else {
             RandComplex {
-                complex: Complex32::new(0.0, 0.0),
+                complex: 0.0,
                 step: step,
             }
         }
