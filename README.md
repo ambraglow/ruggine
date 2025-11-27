@@ -5,6 +5,6 @@ partly to learn about the maths behind dsp to use the experience towards working
 ## What i've worked on so far:
 
 - Implemented graphing functions using the (plotter)[https://github.com/plotter-rs/plotter] crate, to use with time and frequency graphs.
-- simple DFT (i have to implement the cooley tukey algo still :sob:)
+- Simple DFT (i have to implement the cooley tukey algo still :sob:)
 
-^p.s ruggine just means rust in Italian^
+^p.s ruggine just means rust in Italian
