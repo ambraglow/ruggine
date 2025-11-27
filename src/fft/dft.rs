@@ -15,7 +15,6 @@ impl FourierTransform {
             signal: Vec::new(),
         }
     }
-    Some(temp)
 }
 
 pub trait Dft {
