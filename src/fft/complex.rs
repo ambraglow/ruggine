@@ -27,7 +27,7 @@ impl RandComplex<f32> {
             }
         }
     }
-    pub fn random_vec(samples_nr: usize, step: f32) -> Option<Vec<Complex32>> {
+    pub fn random_vec(samples_nr: usize, step: f32) -> Option<Vec<f32>> {
         let complex = RandComplex::default(step, None);
         Some(complex.take(samples_nr).collect())
     }
@@ -63,23 +63,8 @@ impl Iterator for Sine {
     }
 }
 
-// Don't really need float64 so i commented this out
-// impl Iterator for RandComplex<f64> {
-//     type Item = Complex64;
-
-//     fn next(&mut self) -> Option<Self::Item> {
-//         let mut rng = rand::rng();
-//         rng.reseed().unwrap();
-//         self.step = rng.random_range(0.5..1.0);
-//         self.complex.re += self.step;
-//         self.step = rng.random_range(0.5..1.0);
-//         self.complex.im += self.step;
-//         Some(self.complex)
-//     }
-// }
-
 impl Iterator for RandComplex<f32> {
-    type Item = Complex32;
+    type Item = f32;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut rng = rand::rng();
