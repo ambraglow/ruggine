@@ -68,11 +68,9 @@ impl Iterator for RandComplex<f32> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut rng = rand::rng();
-        rng.reseed().unwrap();
-        self.step = rng.random_range(0.5..1.0);
-        self.complex.re += self.step;
-        self.step = rng.random_range(0.5..1.0);
-        self.complex.im += self.step;
+        // rng.reseed().unwrap();
+        self.step = rng.random_range(0.01..1.0);
+        self.complex = self.step;
         Some(self.complex)
     }
 }
