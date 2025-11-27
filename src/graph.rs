@@ -1,6 +1,8 @@
 use anyhow::Ok;
-use num_complex::{Complex, Complex32, Complex64};
-use plotters::prelude::*;
+use num_complex::{Complex, Complex32, Complex64, ComplexFloat};
+use plotters::{prelude::*, style::full_palette::BLUEGREY};
+
+use crate::{SAMPLE_RATE, fft::dft::FourierTransform};
 
 pub trait Plot<T>: Sized {
     fn plot(self, l: Option<T>) -> Result<(), anyhow::Error>;
@@ -21,7 +23,7 @@ impl Plot<String> for Vec<f32> {
             .margin(5)
             .x_label_area_size(50)
             .y_label_area_size(50)
-            .build_cartesian_2d(-2.0f32..self.len() as f32, -1.0..y_max as f32 + 1.0f32)?;
+            .build_cartesian_2d(-2.0f32..self.len() as f32, -2.0..y_max as f32 + 1.0f32)?;
 
         chart.configure_mesh().draw()?;
 
@@ -45,130 +47,47 @@ impl Plot<String> for Vec<f32> {
     }
 }
 
-impl Plot<String> for Vec<Complex64> {
+impl Plot<String> for FourierTransform {
     fn plot(self, l: Option<String>) -> Result<(), anyhow::Error> {
         let label = l.unwrap_or("".to_string());
         let filename = format!("./{}-plot.png", label);
         let root = BitMapBackend::new(&filename, (1024, 640)).into_drawing_area();
         root.fill(&WHITE)?;
 
-        let real: Vec<f64> = self.iter().map(|item: &Complex64| item.re).collect();
+        let mag: Vec<f32> = self.bins.iter().map(|a| a.abs()).collect();
 
-        let im: Vec<f64> = self.iter().map(|item: &Complex64| item.im).collect();
+        let mut sort = mag.clone();
+        sort.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let max_y = *sort.iter().last().unwrap();
 
-        let y_max: i32 = im.iter().map(|&f| f as i32).max().unwrap();
+        let res = SAMPLE_RATE as f32 / self.bins.len() as f32;
+
+        // println!("freq {:?}", * (SAMPLE_RATE as f32 / self.len() as f32);
+        // mag.iter()
+        //     .clone()
+        //     .for_each(|f| println!("{:?}", f * (SAMPLE_RATE as f32 / self.len() as f32)));
 
         let mut chart = ChartBuilder::on(&root)
             .caption(label, ("sans-serif", 30).into_font())
             .margin(5)
             .x_label_area_size(50)
             .y_label_area_size(50)
-            .build_cartesian_2d(-1.0..im.len() as f64, -1.0..y_max as f64 * 1.2)?;
+            .build_cartesian_2d(
+                0f32..(self.bins.len() as f32 * res),
+                (0.0..max_y * 2.0).log_scale(),
+            )?;
 
         chart.configure_mesh().draw()?;
 
-        // chart
-        //     .draw_series(LineSeries::new(
-        //         im.into_iter().enumerate().map(|(x, y)| (x as f64, y.abs())),
-        //         &RED,
-        //     ))?
-        //     .label("imaginary")
-        //     .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], RED));
-
-        // chart
-        //     .draw_series(LineSeries::new(
-        //         real.into_iter()
-        //             .enumerate()
-        //             .map(|(x, y)| (x as f64, y.abs())),
-        //         &BLUE,
-        //     ))?
-        //     .label("real")
-        //     .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], BLUE));
-
         chart
             .draw_series(LineSeries::new(
-                self.into_iter()
+                mag.into_iter()
                     .enumerate()
-                    .map(|(x, y)| (x as f64, y.re.abs())),
-                &RED,
+                    .map(|(x, y)| ((x as f32 * res), y)),
+                &BLUEGREY,
             ))?
-            .label("signal")
-            .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], RED));
-
-        chart.configure_mesh().draw()?;
-
-        chart
-            .configure_series_labels()
-            .background_style(&BLACK.mix(0.2))
-            .border_style(&BLACK)
-            .draw()?;
-
-        root.present()?;
-
-        Ok(())
-    }
-}
-
-impl Plot<String> for Vec<Complex32> {
-    fn plot(self, l: Option<String>) -> Result<(), anyhow::Error> {
-        let label = l.unwrap_or("".to_string());
-        let filename = format!("./{}-plot.png", label);
-        let root = BitMapBackend::new(&filename, (1024, 640)).into_drawing_area();
-        root.fill(&WHITE)?;
-
-        let sample_rate = 44000;
-        let frequency = 1000f32;
-
-        let mag: Vec<Complex32> = self
-            .iter()
-            .map(|a| Complex32::new(a.re.abs(), a.im.abs()))
-            .collect();
-
-        let real: Vec<f32> = self.iter().map(|item: &Complex32| item.re).collect();
-        let im: Vec<f32> = self.iter().map(|item: &Complex32| item.im).collect();
-
-        let y_max: i32 = mag.iter().map(|&f| f.im as i32).max().unwrap();
-        // println!("y_max: {:?}", y_max);
-        let dF = sample_rate / self.len();
-
-        // println!("dF: {:?} len: {:?}", dF, real.len());
-
-        let mut chart = ChartBuilder::on(&root)
-            .caption(label, ("sans-serif", 30).into_font())
-            .margin(5)
-            .x_label_area_size(50)
-            .y_label_area_size(50)
-            .build_cartesian_2d(0f32..self.len() as f32 / 2f32, 0f32..y_max as f32)?;
-
-        chart.configure_mesh().draw()?;
-
-        chart
-            .draw_series(LineSeries::new(
-                mag.into_iter().enumerate().map(|(x, y)| (x as f32, y.im)),
-                &RED,
-            ))?
-            .label("signal")
-            .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], RED));
-
-        // chart
-        //     .draw_series(LineSeries::new(
-        //         real.into_iter()
-        //             .enumerate()
-        //             .map(|(x, y)| (x as f32, y.abs())),
-        //         &BLUE,
-        //     ))?
-        //     .label("real")
-        //     .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], BLUE));
-
-        // chart
-        //     .draw_series(LineSeries::new(
-        //         mag.into_iter().map(|(y)| (y.re, y.im)),
-        //         &RED,
-        //     ))?
-        //     .label("signal")
-        //     .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], RED));
-
-        chart.configure_mesh().draw()?;
+            .label("magnitude")
+            .legend(|(x, y)| PathElement::new(vec![(x, y), (x, y)], RED));
 
         chart
             .configure_series_labels()
