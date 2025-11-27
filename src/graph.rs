@@ -73,7 +73,7 @@ impl Plot<String> for FourierTransform {
             .x_label_area_size(50)
             .y_label_area_size(50)
             .build_cartesian_2d(
-                0f32..(self.bins.len() as f32 * res),
+                0f32..(self.bins.len() as f32 * res) / 2.0,
                 (0.0..max_y * 2.0).log_scale(),
             )?;
 

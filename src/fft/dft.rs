@@ -96,6 +96,28 @@ impl Dft for FourierTransform {
     }
 }
 
+// This is basically what happens in the iterator but as for loops, code kept for reference
+// for frequency_bin in 0..signal {
+//     let mut sum: Complex32 = Complex32::default();
+
+//     for sample in 0..signal {
+//         // if inverse.unwrap() {
+//         //     let angle: f32 = TAU * a as f32 * b as f32 / size as f32;
+//         // }
+//         let angle: f32 = -TAU * frequency_bin as f32 * sample as f32 / signal as f32;
+//         let complex: Complex32 = Complex32::new(angle.cos(), angle.sin());
+
+//         sum += self.signal[sample as usize] * complex;
+
+//         // if inverse.unwrap() {
+//         //     sum.im /= size as f32;
+//         //     sum.re /= size as f32;
+//         // }
+//         // println!("i: {a} j: {b} angle: {angle}");
+//     }
+//     self.bins.push(sum);
+// }
+
 // quick and dirty implementation of dft
 // reference code from https://rosettacode.org/wiki/Discrete_Fourier_transform - C example
 // pub fn dft(input: &mut Vec<f32>, inverse: Option<bool>) -> Option<Vec<Complex32>> {
