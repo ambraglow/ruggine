@@ -75,24 +75,25 @@ impl Dft for FourierTransform {
     /// Incomplete radix-2 FFT implementation
     fn fft(&mut self) {
         let signal = self.signal.len() as i32;
+        self.bins = vec![Complex32::default(); signal as usize];
 
-        let (even, odd): (Vec<_>, Vec<_>) = self
+        let (even_indices, odd_indices): (Vec<_>, Vec<_>) = self
             .signal
-            .iter_mut()
+            .iter()
             .enumerate()
-            .partition(|f: &(_, &mut f32)| f.0 % 2 == 0);
+            .partition(|(i, _)| i % 2 == 0);
 
-        even.iter().map(|(index, value)| {});
+        let mut even: Vec<f32> = even_indices.into_iter().map(|(_, val)| *val).collect();
+        let mut odd: Vec<f32> = odd_indices.into_iter().map(|(_, val)| *val).collect();
 
-        (0..signal as usize)
-            .flat_map(|frequency_bin| {
-                (0..signal as usize).map(move |sample| (frequency_bin, sample))
-            })
-            .for_each(|(frequency_bin, sample)| {
-                let angle: f32 = -TAU * frequency_bin as f32 * sample as f32 / signal as f32;
-                let complex: Complex32 = Complex32::new(angle.cos(), angle.sin());
-                self.bins[frequency_bin] += self.signal[sample] * complex;
-            });
+        let even = self.simple_dft(&mut even);
+        let odd = self.simple_dft(&mut odd);
+
+        for m in 0..signal / 2 {
+            let angle: f32 = -TAU * m as f32 / signal as f32;
+            let complex: Complex32 = Complex32::new(angle.cos(), angle.sin());
+            self.bins[m as usize] = even[m as usize] + angle * odd[m as usize];
+        }
     }
 }
 
