@@ -10,13 +10,13 @@ use crate::{
 };
 use anyhow::{Ok, Result};
 
-const SAMPLE_RATE: u32 = 600;
+const SAMPLE_RATE: u32 = 500;
 const NR_SAMPLES: usize = 5000;
 
 fn main() -> Result<(), anyhow::Error> {
     let mut dft = FourierTransform::new();
 
-    let sine1 = Sine::new(50f32, SAMPLE_RATE);
+    let sine1 = Sine::new(200f32, SAMPLE_RATE);
     // let sine2 = Sine::new(100f32, SAMPLE_RATE);
     let sine1: Vec<f32> = sine1.take(NR_SAMPLES).collect();
     // let sine2: Vec<f32> = sine2.take(NR_SAMPLES).collect();
