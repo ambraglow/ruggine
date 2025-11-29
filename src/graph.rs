@@ -1,4 +1,5 @@
 use anyhow::Ok;
+#[allow(unused_imports)]
 use num_complex::{Complex, Complex32, Complex64, ComplexFloat};
 use plotters::{prelude::*, style::full_palette::BLUEGREY};
 
@@ -16,7 +17,7 @@ impl Plot<String> for Vec<f32> {
         root.fill(&WHITE)?;
 
         let y_max: i32 = self.iter().map(|&f| f as i32).max().unwrap();
-        let y_min: i32 = self.iter().map(|&f| f as i32).min().unwrap();
+        let _y_min: i32 = self.iter().map(|&f| f as i32).min().unwrap();
 
         let mut chart = ChartBuilder::on(&root)
             .caption(label, ("sans-serif", 30).into_font())
