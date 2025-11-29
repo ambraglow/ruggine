@@ -15,17 +15,20 @@ impl FourierTransform {
     }
 }
 
+#[allow(dead_code)]
 pub trait Dft {
     fn simple_dft(&mut self, input: &mut Vec<f32>) -> Vec<Complex32>;
     fn dft(&mut self);
     fn fft(&mut self);
 }
 
+#[allow(dead_code)]
 pub trait Window {
     // fn hamming();
     fn rectangular(&mut self, points: u32);
 }
 
+#[allow(dead_code)]
 impl Window for FourierTransform {
     fn rectangular(&mut self, points: u32) {
         let mut magnitude: Vec<f32> = self.bins.iter().map(|a| a.abs()).collect();
