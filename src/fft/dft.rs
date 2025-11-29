@@ -69,25 +69,23 @@ impl Dft for FourierTransform {
 
     /// Incomplete radix-2 FFT implementation
     fn fft(&mut self) {
-        let signal = self.signal.len() as i32;
+        let signal: usize = self.signal.len();
         self.bins = vec![Complex32::default(); signal as usize];
 
-        let (even_indices, odd_indices): (Vec<_>, Vec<_>) = self
-            .signal
-            .iter()
-            .enumerate()
-            .partition(|(i, _)| i % 2 == 0);
-
-        let mut even: Vec<f32> = even_indices.into_iter().map(|(_, val)| *val).collect();
-        let mut odd: Vec<f32> = odd_indices.into_iter().map(|(_, val)| *val).collect();
+        let mut even: Vec<_> = vec![f32::default(); signal];
+        let mut odd: Vec<_> = vec![f32::default(); signal];
 
         let even = self.simple_dft(&mut even);
         let odd = self.simple_dft(&mut odd);
 
+        // let mut even = self.fft();
+        // let mut odd = self.fft();
+
         for m in 0..signal / 2 {
+            let m_alias = m % (signal / 2);
             let angle: f32 = -TAU * m as f32 / signal as f32;
-            let complex: Complex32 = Complex32::new(angle.cos(), angle.sin());
-            self.bins[m as usize] = even[m as usize] + angle * odd[m as usize];
+            // let complex: Complex32 = Complex32::new(angle.cos(), angle.sin());
+            self.bins[m as usize] = even[m_alias as usize] + angle * odd[m_alias as usize];
         }
     }
 }
