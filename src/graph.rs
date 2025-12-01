@@ -1,4 +1,4 @@
-use anyhow::Ok;
+use anyhow::{Ok, Result};
 #[allow(unused_imports)]
 use num_complex::{Complex, Complex32, Complex64, ComplexFloat};
 use plotters::{prelude::*, style::full_palette::BLUEGREY};
@@ -6,7 +6,7 @@ use plotters::{prelude::*, style::full_palette::BLUEGREY};
 use crate::{SAMPLE_RATE, fft::dft::FourierTransform};
 
 pub trait Plot<T>: Sized {
-    fn plot(self, l: Option<T>) -> Result<(), anyhow::Error>;
+    fn plot(self, l: Option<T>) -> Result<()>;
 }
 
 impl Plot<String> for Vec<f32> {
@@ -24,7 +24,10 @@ impl Plot<String> for Vec<f32> {
             .margin(5)
             .x_label_area_size(50)
             .y_label_area_size(50)
-            .build_cartesian_2d(-2.0f32..self.len() as f32, -2.0..y_max as f32 + 1.0f32)?;
+            .build_cartesian_2d(
+                -2.0f32..self.len() as f32,
+                -y_max as f32 - 1.0..y_max as f32 + 1.0,
+            )?;
 
         chart.configure_mesh().draw()?;
 
@@ -73,10 +76,7 @@ impl Plot<String> for FourierTransform {
             .margin(5)
             .x_label_area_size(50)
             .y_label_area_size(50)
-            .build_cartesian_2d(
-                0f32..(self.bins.len() as f32 * res) / 2.0,
-                (0.0..max_y * 2.0).log_scale(),
-            )?;
+            .build_cartesian_2d(0f32..(self.bins.len() as f32 * res) / 2.0, -1.0..max_y)?;
 
         chart.configure_mesh().draw()?;
 
